@@ -223,28 +223,34 @@ class SemaphoreDetector {
 
             this.ws.onerror = (error) => {
                 console.error('WebSocket error:', error);
-                this.log('⚠️ WebSocket error, falling back to HTTP');
-                // Fallback to HTTP polling
+                const errorMessage = error.message || 'WebSocket Connection Error';
+                this.log(`⚠️ WebSocket error: ${errorMessage}, falling back to HTTP`);
+                this.updateConnectionStatus('warning', 'WS Error, using HTTP');
                 this.startHTTPPolling();
             };
 
-            this.ws.onclose = () => {
-                console.log('WebSocket closed');
+            this.ws.onclose = (event) => {
+                console.log('WebSocket closed:', event.code, event.reason);
                 if (this.isStreaming) {
+                    if (event.code !== 1000) {
+                        this.log(`📡 WebSocket closed (Code: ${event.code}). Reason: ${event.reason || 'Unknown'}`);
+                    }
                     this.attemptReconnect();
                 }
             };
 
         } catch (error) {
-            console.error('WebSocket connection failed:', error);
+            console.error('WebSocket connection setup failed:', error);
+            this.log('❌ WebSocket setup failed: ' + error.message);
             this.startHTTPPolling();
         }
     }
 
     startHTTPPolling() {
-        if (this.frameInterval) return;
+        if (this.frameInterval && !this.ws) return; // Already polling or WS is fallbacking
 
         this.updateConnectionStatus('connected', 'Connected (HTTP)');
+        this.log('📡 Starting HTTP polling mode');
         this.startFrameCapture(true);
     }
 

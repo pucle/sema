@@ -290,6 +290,12 @@ class SemaphoreDetector {
         const startTime = performance.now();
 
         try {
+            // Capture frame from video
+            const canvas = document.createElement('canvas');
+            canvas.width = CONFIG.MAX_WIDTH;
+            canvas.height = CONFIG.MAX_HEIGHT;
+            const ctx = canvas.getContext('2d');
+
             // Draw video frame with optional rotation
             if (this.rotation !== 0) {
                 ctx.save();

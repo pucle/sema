@@ -37,7 +37,8 @@ class SemaphoreDetector {
         this.ws = null;
         this.frameInterval = null;
         this.reconnectAttempts = 0;
-        this.rotation = 0; // 0, 90, 180, 270 degrees
+        this.rotation = 0;
+        this.isProcessing = false; // Flag to prevent overlapping requests
 
         // Stats tracking
         this.framesSent = 0;
@@ -74,6 +75,10 @@ class SemaphoreDetector {
         // Diagnostic buttons
         document.getElementById('btnTest')?.addEventListener('click', () => this.testConnection());
         document.getElementById('btnRotate')?.addEventListener('click', () => this.toggleRotation());
+
+        // Startup log
+        this.log('🚀 System initialized v1.0.7');
+        this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
     }
 
     toggleRotation() {
@@ -287,7 +292,10 @@ class SemaphoreDetector {
     }
 
     async captureAndSendFrame(useHTTP = false) {
+        if (this.isProcessing) return; // Skip if previous frame is still processing
+
         const startTime = performance.now();
+        this.isProcessing = true;
 
         try {
             // Capture frame from video
@@ -324,12 +332,17 @@ class SemaphoreDetector {
             } else {
                 // WebSocket
                 this.ws.send(imageData);
+                // For WS we don't know exactly when it finishes processing 
+                // unless we wait for the message, but let's just reset flag here
+                // to allow next frame. WS handles its own queuing usually.
+                this.isProcessing = false;
             }
 
             this.framesSent++;
 
         } catch (error) {
             console.error('Frame capture error:', error);
+            this.isProcessing = false;
         }
     }
 
@@ -364,6 +377,8 @@ class SemaphoreDetector {
                 console.error('HTTP request error:', error);
                 this.log(`❌ HTTP Request failed: ${error.message}`);
             }
+        } finally {
+            this.isProcessing = false;
         }
     }
 

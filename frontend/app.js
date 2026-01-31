@@ -278,9 +278,7 @@ class SemaphoreDetector {
             canvas.height = CONFIG.MAX_HEIGHT;
             const ctx = canvas.getContext('2d');
 
-            // Draw video frame (flip horizontally to match display)
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
+            // Draw video frame (no flip, send original orientation to backend)
             ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
 
             // Get base64 image

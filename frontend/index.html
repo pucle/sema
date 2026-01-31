@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Semaphore Signal Detection - Real-time AI Demo">
+    <title>🚦 Semaphore Detector - AI Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🚦</span>
+                <h1>Semaphore Detector</h1>
+            </div>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Video Section -->
+            <section class="video-section">
+                <div class="video-container">
+                    <video id="videoElement" autoplay playsinline muted></video>
+                    <canvas id="overlayCanvas"></canvas>
+                    <div class="video-overlay" id="videoOverlay">
+                        <span class="overlay-icon">📷</span>
+                        <p>Click "Start Camera" to begin</p>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="controls">
+                    <button id="btnStartCamera" class="btn btn-primary">
+                        <span class="btn-icon">▶️</span> Start Camera
+                    </button>
+                    <button id="btnStopCamera" class="btn btn-danger" disabled>
+                        <span class="btn-icon">⏹️</span> Stop Camera
+                    </button>
+                    <button id="btnToggleStream" class="btn btn-secondary" disabled>
+                        <span class="btn-icon">📡</span> Start Streaming
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <!-- Stats Panel -->
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">FPS</span>
+                        <span class="stat-value" id="fpsValue">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Latency</span>
+                        <span class="stat-value" id="latencyValue">-- ms</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Detections</span>
+                        <span class="stat-value" id="detectionsValue">0</span>
+                    </div>
+                </div>
+
+                <!-- Current Detection -->
+                <div class="current-detection" id="currentDetection">
+                    <h3>Current Signal</h3>
+                    <div class="detection-display">
+                        <span class="signal-letter" id="signalLetter">-</span>
+                        <span class="signal-confidence" id="signalConfidence">0%</span>
+                    </div>
+                </div>
+
+                <!-- Detection History -->
+                <div class="detection-history">
+                    <h3>Detection Sequence</h3>
+                    <div class="sequence-display" id="sequenceDisplay">
+                        <span class="placeholder-text">Waiting for detections...</span>
+                    </div>
+                </div>
+
+                <!-- Live Results Log -->
+                <div class="results-log">
+                    <div class="log-header">
+                        <h3>Live Results</h3>
+                        <button id="btnClearLog" class="btn btn-sm">Clear</button>
+                    </div>
+                    <div class="log-container" id="logContainer">
+                        <p class="log-placeholder">Results will appear here...</p>
+                    </div>
+                </div>
+
+                <!-- Viewer Link -->
+                <div class="viewer-link-panel" id="viewerPanel" style="display: none;">
+                    <h3>📺 Share Live View</h3>
+                    <p>Others can watch the live detection results:</p>
+                    <div class="link-input-group">
+                        <input type="text" id="viewerLink" readonly>
+                        <button id="btnCopyLink" class="btn btn-sm">📋 Copy</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Error Toast -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -37,6 +37,7 @@ class SemaphoreDetector {
         this.ws = null;
         this.frameInterval = null;
         this.reconnectAttempts = 0;
+        this.rotation = 0; // 0, 90, 180, 270 degrees
 
         // Stats tracking
         this.framesSent = 0;
@@ -54,6 +55,9 @@ class SemaphoreDetector {
 
         // Bind events
         this.bindEvents();
+
+        this.log('🚀 System initialized v1.0.5');
+        this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
     }
 
     generateSessionId() {
@@ -67,13 +71,19 @@ class SemaphoreDetector {
         this.btnClearLog.addEventListener('click', () => this.clearLog());
         this.btnCopyLink?.addEventListener('click', () => this.copyViewerLink());
 
-        // Diagnostic button
+        // Diagnostic buttons
         document.getElementById('btnTest')?.addEventListener('click', () => this.testConnection());
+        document.getElementById('btnRotate')?.addEventListener('click', () => this.toggleRotation());
+    }
 
-        // Startup log
-        this.log('🚀 System initialized v1.0.4');
-        this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
-        this.log('📡 Config WS: ' + CONFIG.WS_URL);
+    toggleRotation() {
+        this.rotation = (this.rotation + 90) % 360;
+        this.log(`🔄 Rotation set to ${this.rotation}°`);
+        this.showToast(`Rotation: ${this.rotation}°`, 'info');
+
+        // Apply visual rotation to preview
+        this.videoElement.style.transform = `rotate(${this.rotation}deg)`;
+        this.overlayCanvas.style.transform = `rotate(${this.rotation}deg)`;
     }
 
     // ==========================================
@@ -255,10 +265,10 @@ class SemaphoreDetector {
     }
 
     startHTTPPolling() {
-        if (this.frameInterval && !this.ws) return; // Already polling or WS is fallbacking
+        if (this.frameInterval && !this.ws) return;
 
         this.updateConnectionStatus('connected', 'Connected (HTTP)');
-        this.log('📡 Starting HTTP polling mode');
+        this.log('📡 Connection switched to HTTP Mode');
         this.startFrameCapture(true);
     }
 
@@ -280,14 +290,21 @@ class SemaphoreDetector {
         const startTime = performance.now();
 
         try {
-            // Capture frame from video
-            const canvas = document.createElement('canvas');
-            canvas.width = CONFIG.MAX_WIDTH;
-            canvas.height = CONFIG.MAX_HEIGHT;
-            const ctx = canvas.getContext('2d');
-
-            // Draw video frame (no flip, send original orientation to backend)
-            ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+            // Draw video frame with optional rotation
+            if (this.rotation !== 0) {
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                // Adjust drawing rect if 90 or 270
+                if (this.rotation % 180 !== 0) {
+                    ctx.drawImage(this.videoElement, -canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width);
+                } else {
+                    ctx.drawImage(this.videoElement, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                }
+                ctx.restore();
+            } else {
+                ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+            }
 
             // Get base64 image
             const imageData = canvas.toDataURL('image/jpeg', CONFIG.IMAGE_QUALITY);
@@ -624,16 +641,29 @@ class ViewerMode {
     }
 
     init() {
-        document.querySelector('.controls').style.display = 'none';
-        document.querySelector('.video-section').innerHTML = `
-            <div class="viewer-notice">
-                <h2>📺 Viewer Mode</h2>
-                <p>Watching live detection results</p>
-                <p class="session-id">Session: ${this.sessionId}</p>
+        this.log('📺 Viewer Mode Active');
+        this.log('🔗 Session: ' + this.sessionId);
+
+        const videoSection = document.querySelector('.video-section');
+        videoSection.innerHTML = `
+            <div class="viewer-notice" style="background: var(--bg-secondary); padding: var(--spacing-xl); border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--accent-primary);">
+                <div class="overlay-icon" style="font-size: 3rem;">📺</div>
+                <h2 style="margin: var(--spacing-md) 0;">Viewer Mode</h2>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">You are watching live results from another user.</p>
+                <div style="background: var(--bg-card); padding: var(--spacing-sm); border-radius: var(--radius-sm); font-family: monospace; font-size: 0.8rem;">
+                    Session: ${this.sessionId}
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-md); text-align: center;">
+                <p id="viewerStatus" style="font-size: 0.8rem; color: var(--success);">● Syncing live...</p>
             </div>
         `;
 
         this.startPolling();
+    }
+
+    log(msg) {
+        if (window.app) window.app.log(msg);
     }
 
     startPolling() {
@@ -646,18 +676,26 @@ class ViewerMode {
             if (response.ok) {
                 const data = await response.json();
                 this.displayResults(data);
+                if (data.detections) document.getElementById('viewerStatus').textContent = '● Connected';
             }
         } catch (error) {
             console.error('Viewer poll error:', error);
+            document.getElementById('viewerStatus').textContent = '○ Reconnecting...';
         }
     }
 
     displayResults(data) {
         if (data.detections && data.detections.length > 0) {
-            const topDetection = data.detections[0];
-            document.getElementById('signalLetter').textContent = topDetection.class?.charAt(0) || '-';
-            document.getElementById('signalConfidence').textContent =
-                `${(topDetection.confidence * 100).toFixed(1)}%`;
+            // Update the main app UI if it exists globally
+            if (window.app) {
+                window.app.handleDetectionResults(data);
+            } else {
+                // Fallback direct update
+                const topDetection = data.detections[0];
+                const letter = topDetection.class?.charAt(0) || '-';
+                document.getElementById('signalLetter').textContent = letter;
+                document.getElementById('signalConfidence').textContent = `${(topDetection.confidence * 100).toFixed(1)}%`;
+            }
         }
     }
 }

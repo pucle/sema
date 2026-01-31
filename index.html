@@ -18,12 +18,15 @@
                 <span class="logo-icon">🚦</span>
                 <h1>Semaphore Detector</h1>
                 <span class="version-tag"
-                    style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.5rem; vertical-align: bottom;">v1.0.4</span>
+                    style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.5rem; vertical-align: bottom;">v1.0.5</span>
             </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+                <button id="btnRotate" class="btn btn-sm" title="Rotate capture if mobile detects sideways">
+                    🔄 Rotate
+                </button>
                 <button id="btnTest" class="btn btn-sm"
                     style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary);">
-                    🔍 Test Connection
+                    🔍 Test
                 </button>
                 <div class="connection-status" id="connectionStatus">
                     <span class="status-dot"></span>

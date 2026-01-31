@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Header -->
@@ -15,6 +17,8 @@
             <div class="logo">
                 <span class="logo-icon">🚦</span>
                 <h1>Semaphore Detector</h1>
+                <span class="version-tag"
+                    style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.5rem; vertical-align: bottom;">v1.0.3</span>
             </div>
             <div class="connection-status" id="connectionStatus">
                 <span class="status-dot"></span>
@@ -34,7 +38,7 @@
                         <p>Click "Start Camera" to begin</p>
                     </div>
                 </div>
-                
+
                 <!-- Controls -->
                 <div class="controls">
                     <button id="btnStartCamera" class="btn btn-primary">
@@ -114,4 +118,5 @@
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

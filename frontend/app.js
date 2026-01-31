@@ -66,6 +66,14 @@ class SemaphoreDetector {
         this.btnToggleStream.addEventListener('click', () => this.toggleStreaming());
         this.btnClearLog.addEventListener('click', () => this.clearLog());
         this.btnCopyLink?.addEventListener('click', () => this.copyViewerLink());
+
+        // Diagnostic button
+        document.getElementById('btnTest')?.addEventListener('click', () => this.testConnection());
+
+        // Startup log
+        this.log('🚀 System initialized v1.0.4');
+        this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
+        this.log('📡 Config WS: ' + CONFIG.WS_URL);
     }
 
     // ==========================================
@@ -315,6 +323,7 @@ class SemaphoreDetector {
             const result = await fetch(`${CONFIG.BACKEND_URL}/api/process-frame`, {
                 method: 'POST',
                 body: formData,
+                mode: 'cors',
                 signal: AbortSignal.timeout(CONFIG.REQUEST_TIMEOUT)
             });
 
@@ -322,12 +331,37 @@ class SemaphoreDetector {
                 const data = await result.json();
                 const latency = performance.now() - startTime;
                 this.handleDetectionResults({ ...data, latency });
+            } else {
+                const errText = await result.text();
+                this.log(`⚠️ HTTP Error ${result.status}: ${errText.substring(0, 50)}`);
             }
 
         } catch (error) {
             if (error.name !== 'AbortError') {
                 console.error('HTTP request error:', error);
+                this.log(`❌ HTTP Request failed: ${error.message}`);
             }
+        }
+    }
+
+    async testConnection() {
+        this.log('🔍 Testing connection to ' + CONFIG.BACKEND_URL);
+        try {
+            const start = performance.now();
+            const res = await fetch(`${CONFIG.BACKEND_URL}/health`, { mode: 'cors' });
+            const duration = (performance.now() - start).toFixed(0);
+
+            if (res.ok) {
+                const data = await res.json();
+                this.log(`✅ Connection OK! Latency: ${duration}ms, Status: ${data.status}`);
+                this.showToast('Connection Successful!', 'success');
+            } else {
+                this.log(`❌ Connection Failed! Status: ${res.status}`);
+                this.showToast('Connection Failed: ' + res.status, 'error');
+            }
+        } catch (error) {
+            this.log(`❌ Connection ERROR: ${error.message}`);
+            this.showToast('Connection Error: ' + error.message, 'error');
         }
     }
 

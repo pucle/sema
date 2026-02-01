@@ -1,6 +1,6 @@
 ---
-title: Semaphore Detector
-emoji: 🚦
+title: Semaphore Detector Pro
+emoji: 🚦⚡
 colorFrom: indigo
 colorTo: green
 sdk: docker

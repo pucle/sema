@@ -87,7 +87,7 @@ def load_model():
 app = FastAPI(
     title="Semaphore Detector API",
     description="Real-time semaphore signal detection API",
-    version="1.0.0"
+    version="1.0.8"
 )
 
 # CORS - Allow all origins for demo (restrict in production)

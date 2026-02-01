@@ -67,9 +67,9 @@ def load_model():
     else:
         os.environ["ROBOFLOW_INFERENCE_DEVICE"] = DEVICE
     
-    # Optimize CPU threads
-    os.environ["OMP_NUM_THREADS"] = "4"
-    os.environ["MKL_NUM_THREADS"] = "4"
+    # Optimize CPU threads for 2-vCPU environments (like HF Free Tier)
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
     
     try:
         from inference import get_model

@@ -266,9 +266,11 @@ async def websocket_endpoint(websocket: WebSocket):
                     continue
                 
                 # Run inference in a separate thread to avoid blocking the event loop
+                print(f"DEBUG: Starting inference for WS frame...")
                 results = await asyncio.to_thread(model.infer, img)
                 results = results[0]
                 predictions = results.predictions
+                print(f"DEBUG: Inference complete. Detections count: {len(predictions)}")
                 
                 # Format detections
                 detections = []

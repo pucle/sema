@@ -241,7 +241,6 @@ async def websocket_endpoint(websocket: WebSocket):
     Server responds: JSON with detections
     """
     await websocket.accept()
-    print(f"📡 WebSocket connection accepted")
     
     try:
         while True:

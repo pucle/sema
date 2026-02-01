@@ -54,10 +54,20 @@ class SemaphoreDetector {
         // Session ID for viewer sharing
         this.sessionId = this.generateSessionId();
 
+        // Chart
+        this.performanceChart = null;
+        this.chartData = {
+            labels: [],
+            latency: [],
+            fps: []
+        };
+
         // Bind events
         this.bindEvents();
 
-        this.log('🚀 System initialized v1.0.5');
+        this.initChart();
+
+        this.log('🚀 System initialized v1.0.8');
         this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
     }
 
@@ -76,9 +86,96 @@ class SemaphoreDetector {
         document.getElementById('btnTest')?.addEventListener('click', () => this.testConnection());
         document.getElementById('btnRotate')?.addEventListener('click', () => this.toggleRotation());
 
-        // Startup log
-        this.log('🚀 System initialized v1.0.7');
+        this.log('🚀 System initialized v1.0.8');
         this.log('📡 Config Backend: ' + CONFIG.BACKEND_URL);
+    }
+
+    initChart() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const gradientLatency = ctx.createLinearGradient(0, 0, 0, 120);
+        gradientLatency.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+        gradientLatency.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+        const gradientFPS = ctx.createLinearGradient(0, 0, 0, 120);
+        gradientFPS.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
+        gradientFPS.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+        this.performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(30).fill(''),
+                datasets: [
+                    {
+                        label: 'Latency (ms)',
+                        data: Array(30).fill(null),
+                        borderColor: '#6366f1',
+                        backgroundColor: gradientLatency,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'FPS',
+                        data: Array(30).fill(null),
+                        borderColor: '#10b981',
+                        backgroundColor: gradientFPS,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        position: 'left',
+                        beginAtZero: true,
+                        max: 600,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    },
+                    y1: {
+                        position: 'right',
+                        beginAtZero: true,
+                        max: 40,
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    }
+                },
+                animation: { duration: 0 }
+            }
+        });
+    }
+
+    updateChart(latency, fps) {
+        if (!this.performanceChart) return;
+
+        const labels = this.performanceChart.data.labels;
+        const latencyData = this.performanceChart.data.datasets[0].data;
+        const fpsData = this.performanceChart.data.datasets[1].data;
+
+        latencyData.push(latency);
+        fpsData.push(fps);
+
+        if (latencyData.length > 30) {
+            latencyData.shift();
+            fpsData.shift();
+        }
+
+        this.performanceChart.update();
     }
 
     toggleRotation() {
@@ -428,6 +525,10 @@ class SemaphoreDetector {
     handleDetectionResults(data) {
         const latency = data.latency || 0;
         this.updateLatency(latency);
+
+        // Update Chart
+        const currentFPS = parseFloat(this.fpsValue.textContent) || 0;
+        this.updateChart(latency, currentFPS);
 
         // Clear previous drawings
         this.ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);

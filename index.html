@@ -8,6 +8,7 @@
     <title>🚦 Semaphore Detector - AI Demo</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -59,6 +60,20 @@
                     <button id="btnToggleStream" class="btn btn-secondary" disabled>
                         <span class="btn-icon">📡</span> Start Streaming
                     </button>
+                </div>
+
+                <!-- Performance Monitor -->
+                <div class="performance-monitor">
+                    <div class="monitor-header">
+                        <h3>📡 Signal Performance</h3>
+                        <div class="monitor-legend">
+                            <span class="legend-item"><span class="dot latency"></span> Latency</span>
+                            <span class="legend-item"><span class="dot fps"></span> FPS</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
                 </div>
             </section>
 

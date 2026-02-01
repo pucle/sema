@@ -168,8 +168,9 @@ async def process_frame(
                 content={"error": "Invalid image", "detections": []}
             )
         
-        # Run inference
-        results = model.infer(img)[0]
+        # Run inference in a separate thread to avoid blocking the event loop
+        results = await asyncio.to_thread(model.infer, img)
+        results = results[0]
         predictions = results.predictions
         
         # Format detections
@@ -264,8 +265,9 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"error": "Invalid image", "detections": []})
                     continue
                 
-                # Run inference
-                results = model.infer(img)[0]
+                # Run inference in a separate thread to avoid blocking the event loop
+                results = await asyncio.to_thread(model.infer, img)
+                results = results[0]
                 predictions = results.predictions
                 
                 # Format detections

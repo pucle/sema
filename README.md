@@ -1,3 +1,12 @@
+---
+title: Semaphore Detector
+emoji: 🚦
+colorFrom: indigo
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # 🚦 Semaphore Detector - Webcam AI Streaming
 
 Real-time semaphore signal detection using AI, deployed on free cloud infrastructure.

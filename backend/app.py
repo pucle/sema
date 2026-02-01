@@ -103,6 +103,9 @@ app.add_middleware(
 session_results: Dict[str, Dict[str, Any]] = defaultdict(dict)
 active_connections: Dict[str, List[WebSocket]] = defaultdict(list)
 
+# Global semaphore to limit concurrent inferences (HF Spaces have limited CPU)
+inference_semaphore = asyncio.Semaphore(1)
+
 # ============================================================
 # STARTUP EVENT
 # ============================================================
@@ -168,9 +171,10 @@ async def process_frame(
                 content={"error": "Invalid image", "detections": []}
             )
         
-        # Run inference in a separate thread to avoid blocking the event loop
-        results = await asyncio.to_thread(model.infer, img)
-        predictions = results[0].predictions
+        # Run inference with semaphore to prevent CPU saturation
+        async with inference_semaphore:
+            results = await asyncio.to_thread(model.infer, img)
+            predictions = results[0].predictions
         
         # Format detections
         detections = []
@@ -265,9 +269,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"error": "Invalid image", "detections": []})
                     continue
                 
-                # Run inference in a separate thread to avoid blocking the event loop
-                results = await asyncio.to_thread(model.infer, img)
-                predictions = results[0].predictions
+                # Run inference with semaphore to prevent CPU saturation
+                async with inference_semaphore:
+                    results = await asyncio.to_thread(model.infer, img)
+                    predictions = results[0].predictions
                 
                 # Format detections
                 detections = []

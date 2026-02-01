@@ -15,8 +15,8 @@ const CONFIG = {
     // Frame capture settings
     FRAME_RATE: 8,           // FPS to send to server (lower = better stability on CPU)
     IMAGE_QUALITY: 0.7,       // JPEG quality (0.1 - 1.0)
-    MAX_WIDTH: 640,           // Resize width before sending
-    MAX_HEIGHT: 480,          // Resize height before sending
+    MAX_WIDTH: 416,           // Reduced for faster CPU inference
+    MAX_HEIGHT: 312,
 
     // Connection settings
     RECONNECT_DELAY: 2000,    // ms before reconnecting

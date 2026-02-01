@@ -176,12 +176,14 @@ async def process_frame(
         # Format detections
         detections = []
         for pred in predictions:
-            if hasattr(pred, 'class_name'):
-                confidence = float(pred.confidence)
-                if confidence >= CONFIDENCE_THRESHOLD:
-                    detections.append({
-                        "class": pred.class_name,
-                        "confidence": confidence,
+            # Robust attribute checking
+            cls_name = getattr(pred, 'class_name', getattr(pred, 'class', 'unknown'))
+            confidence = float(pred.confidence)
+            
+            if confidence >= CONFIDENCE_THRESHOLD:
+                detections.append({
+                    "class": cls_name,
+                    "confidence": confidence,
                         "x": float(pred.x),
                         "y": float(pred.y),
                         "width": float(pred.width),
@@ -276,11 +278,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 # Format detections
                 detections = []
                 for pred in predictions:
-                    if hasattr(pred, 'class_name'):
-                        confidence = float(pred.confidence)
-                        if confidence >= CONFIDENCE_THRESHOLD:
-                            detections.append({
-                                "class": pred.class_name,
+                    # Robust attribute checking
+                    cls_name = getattr(pred, 'class_name', getattr(pred, 'class', 'unknown'))
+                    confidence = float(pred.confidence)
+                    
+                    if confidence >= CONFIDENCE_THRESHOLD:
+                        print(f"🎯 Match: {cls_name} ({confidence})")
+                        detections.append({
+                            "class": cls_name,
                                 "confidence": confidence,
                                 "x": float(pred.x),
                                 "y": float(pred.y),

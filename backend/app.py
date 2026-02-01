@@ -48,7 +48,8 @@ def load_model():
     """Load Roboflow model with GPU preference"""
     global model, model_loaded
     
-    print("🔄 Loading model...")
+    print("🔄 Loading model (Version 1.0.8.2)...")
+    print(f"🚀 RESTART TRIGGER: {datetime.now().isoformat()}")
     
     # Configure environment for GPU if available
     if DEVICE == "auto":
@@ -298,6 +299,8 @@ async def websocket_endpoint(websocket: WebSocket):
                             })
                 
                 latency = (time.time() - start_time) * 1000
+                if latency > 500:
+                    print(f"⚠️ Slow Inference: {latency:.1f}ms")
                 
                 result_data = {
                     "detections": detections,

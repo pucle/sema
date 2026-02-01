@@ -13,7 +13,7 @@ const CONFIG = {
     // WS_URL: 'wss://YOUR_USERNAME-semaphore-detector.hf.space/ws/stream',
 
     // Frame capture settings
-    FRAME_RATE: 10,           // FPS to send to server (lower = less bandwidth)
+    FRAME_RATE: 8,           // FPS to send to server (lower = better stability on CPU)
     IMAGE_QUALITY: 0.7,       // JPEG quality (0.1 - 1.0)
     MAX_WIDTH: 640,           // Resize width before sending
     MAX_HEIGHT: 480,          // Resize height before sending

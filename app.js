@@ -339,6 +339,8 @@ class SemaphoreDetector {
             this.ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 this.handleDetectionResults(data);
+                // LOCKSTEP: Allow next frame only after response
+                this.isProcessing = false;
             };
 
             this.ws.onerror = (error) => {
@@ -429,10 +431,8 @@ class SemaphoreDetector {
             } else {
                 // WebSocket
                 this.ws.send(imageData);
-                // For WS we don't know exactly when it finishes processing 
-                // unless we wait for the message, but let's just reset flag here
-                // to allow next frame. WS handles its own queuing usually.
-                this.isProcessing = false;
+                // Note: isProcessing remains TRUE until onmessage receives a response
+                // this creates a "lockstep" mechanism to avoid flooding the server
             }
 
             this.framesSent++;

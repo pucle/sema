@@ -32,7 +32,7 @@ API_KEY = os.getenv("ROBOFLOW_API_KEY", "ylFu6Gi5msSoDxbPC9Sl")
 MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID", "semaphore-dataset-1wlaa/1")
 
 # Detection settings
-CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.60"))
+CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.35"))
 
 # Device settings - prioritize GPU if available
 DEVICE = os.getenv("INFERENCE_DEVICE", "auto")  # auto, cpu, cuda
@@ -235,13 +235,14 @@ async def websocket_endpoint(websocket: WebSocket):
     Server responds: JSON with detections
     """
     await websocket.accept()
-    
-    session_id = None
+    print(f"📡 WebSocket connection accepted")
     
     try:
         while True:
             # Receive base64 image
+            print("DEBUG: Waiting for WebSocket message...")
             data = await websocket.receive_text()
+            print(f"DEBUG: Received message, length: {len(data)}")
             
             if not model_loaded:
                 await websocket.send_json({"error": "Model not loaded", "detections": []})

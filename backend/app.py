@@ -170,8 +170,7 @@ async def process_frame(
         
         # Run inference in a separate thread to avoid blocking the event loop
         results = await asyncio.to_thread(model.infer, img)
-        results = results[0]
-        predictions = results.predictions
+        predictions = results[0].predictions
         
         # Format detections
         detections = []
@@ -242,9 +241,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             # Receive base64 image
-            print("DEBUG: Waiting for WebSocket message...")
             data = await websocket.receive_text()
-            print(f"DEBUG: Received message, length: {len(data)}")
             
             if not model_loaded:
                 await websocket.send_json({"error": "Model not loaded", "detections": []})
@@ -269,11 +266,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     continue
                 
                 # Run inference in a separate thread to avoid blocking the event loop
-                print(f"DEBUG: Starting inference for WS frame...")
                 results = await asyncio.to_thread(model.infer, img)
-                results = results[0]
-                predictions = results.predictions
-                print(f"DEBUG: Inference complete. Detections count: {len(predictions)}")
+                predictions = results[0].predictions
                 
                 # Format detections
                 detections = []
@@ -283,7 +277,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     confidence = float(pred.confidence)
                     
                     if confidence >= CONFIDENCE_THRESHOLD:
-                        print(f"🎯 Match: {cls_name} ({confidence})")
                         detections.append({
                             "class": cls_name,
                                 "confidence": confidence,

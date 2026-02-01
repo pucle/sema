@@ -103,11 +103,11 @@ class SemaphoreDetector {
         this.performanceChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array(30).fill(''),
+                labels: Array(60).fill(''),
                 datasets: [
                     {
                         label: 'Latency (ms)',
-                        data: Array(30).fill(null),
+                        data: Array(60).fill(null),
                         borderColor: '#6366f1',
                         backgroundColor: gradientLatency,
                         borderWidth: 2,
@@ -118,7 +118,7 @@ class SemaphoreDetector {
                     },
                     {
                         label: 'FPS',
-                        data: Array(30).fill(null),
+                        data: Array(60).fill(null),
                         borderColor: '#10b981',
                         backgroundColor: gradientFPS,
                         borderWidth: 2,
@@ -170,7 +170,7 @@ class SemaphoreDetector {
         latencyData.push(latency);
         fpsData.push(fps);
 
-        if (latencyData.length > 30) {
+        if (latencyData.length > 60) {
             latencyData.shift();
             fpsData.shift();
         }
